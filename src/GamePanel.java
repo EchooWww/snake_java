@@ -28,6 +28,7 @@ public class GamePanel extends JPanel implements ActionListener {
     char direction = 'R'; // L, U, D
     // Status of the snake
     boolean running = false;
+    boolean gameOver = false;
     // Timer of the game
     Timer timer;
     // A random object for generating apples
@@ -142,11 +143,13 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setFont(new Font("Game Over", Font.BOLD, 60));
         FontMetrics metrics2 = getFontMetrics(g.getFont());
         g.drawString("Score: "+applesEaten, (SCREEN_WIDTH - metrics2.stringWidth("Score: "+applesEaten))/2,  g.getFont().getSize());
+        g.drawString("Hit ENTER to replay", (SCREEN_WIDTH - metrics2.stringWidth("Hit ENTER to replay"))/2,  SCREEN_HEIGHT *2 / 3);
+        gameOver = true;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (running) {
+        if (running && !gameOver) {
             move();
             checkApple();
             checkCollisions();
@@ -154,23 +157,40 @@ public class GamePanel extends JPanel implements ActionListener {
         repaint();
     }
 
+    public void resetGame() {
+        x[0] = SCREEN_WIDTH / 2;
+        y[0] = SCREEN_HEIGHT / 2;
+        bodyParts = 6;
+        applesEaten = 0;
+        direction = 'R';
+        running = true;
+        newApple();
+        gameOver = false;
+        timer.start();
+    }
+
     public class MyKeyAdapter extends KeyAdapter{
         @Override
         public void keyPressed(KeyEvent e) {
-            switch(e.getKeyCode()) {
-                case KeyEvent.VK_LEFT -> {
-                    if (direction != 'R') direction = 'L';
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                if (gameOver) {
+                    resetGame();
                 }
-                case KeyEvent.VK_RIGHT -> {
-                    if (direction != 'L') direction = 'R';
+            } else {
+                switch(e.getKeyCode()) {
+                    case KeyEvent.VK_LEFT -> {
+                        if (direction != 'R') direction = 'L';
+                    }
+                    case KeyEvent.VK_RIGHT -> {
+                        if (direction != 'L') direction = 'R';
+                    }
+                    case KeyEvent.VK_UP -> {
+                        if (direction != 'D') direction = 'U';
+                    }
+                    case KeyEvent.VK_DOWN -> {
+                        if (direction != 'U') direction = 'D';
+                    }
                 }
-                case KeyEvent.VK_UP -> {
-                    if (direction != 'D') direction = 'U';
-                }
-                case KeyEvent.VK_DOWN -> {
-                    if (direction != 'U') direction = 'D';
-                }
-
             }
         }
     }
